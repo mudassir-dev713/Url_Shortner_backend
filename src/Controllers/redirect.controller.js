@@ -1,14 +1,14 @@
-import { isbot } from 'isbot';
-import urlSchemaModel from '../Models/shortUrl.model.js';
-import { catchAsync } from '../utils/errorHandler.js';
-import Click from '../Models/click.model.js';
-import {
+const isbot = require('isbot');
+const urlSchemaModel = require('../Models/shortUrl.model.js');
+const { catchAsync, AppError } = require('../utils/errorHandler.js');
+const Click = require('../Models/click.model.js');
+const {
   extractIp,
   getBrowserAndDevice,
   getGeoInfo,
-} from '../Services/analytics.service.js';
+} = require('../Services/analytics.service.js');
 
-export const redirectToOriginalUrl = catchAsync(async (req, res, next) => {
+const redirectToOriginalUrl = catchAsync(async (req, res, next) => {
   const { id } = req.params;
 
   const url = await urlSchemaModel.findOneAndUpdate(
@@ -17,13 +17,14 @@ export const redirectToOriginalUrl = catchAsync(async (req, res, next) => {
     { new: true }
   );
   if (!url) return next(new AppError('Short URL not found', 404));
+
   if (url.user) {
     const ip = extractIp(req);
     const geo = await getGeoInfo(ip);
     const isBot = isbot(req.headers['user-agent'] || '');
     const { browser, deviceType } = getBrowserAndDevice(req);
-    const referrer = req.get('referer') || 'Direct'; // fix header
-    const hour = new Date().getHours(); // local hour (use getUTCHours if needed)
+    const referrer = req.get('referer') || 'Direct';
+    const hour = new Date().getHours();
 
     await Click.create({
       urlId: url._id,
@@ -37,9 +38,11 @@ export const redirectToOriginalUrl = catchAsync(async (req, res, next) => {
       hour,
       createdAt: new Date(),
     });
-
-    res.redirect(url.full_url);
-  } else {
-    res.redirect(url.full_url);
   }
+
+  res.redirect(url.full_url);
 });
+
+module.exports = {
+  redirectToOriginalUrl,
+};

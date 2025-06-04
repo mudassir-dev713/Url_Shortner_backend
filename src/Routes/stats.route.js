@@ -1,8 +1,8 @@
-import { Router } from 'express';
-import userSchemaModel from '../Models/user.model.js';
-import urlSchemaModel from '../Models/shortUrl.model.js';
+const express = require('express');
+const userSchemaModel = require('../Models/user.model.js');
+const urlSchemaModel = require('../Models/shortUrl.model.js');
 
-const router = Router();
+const router = express.Router();
 
 router.get('/', async (req, res) => {
   try {
@@ -22,4 +22,4 @@ router.get('/', async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;

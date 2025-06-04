@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
-const userSchema = mongoose.Schema(
+const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -18,5 +18,7 @@ const userSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
-const User = mongoose.model('userSchema', userSchema);
-export default User;
+
+const User = mongoose.model('User', userSchema);
+
+module.exports = User;

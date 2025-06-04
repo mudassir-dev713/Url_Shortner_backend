@@ -1,12 +1,16 @@
-import Click from '../Models/click.model.js';
-import mongoose from 'mongoose';
+const Click = require('../Models/click.model.js');
+const mongoose = require('mongoose');
 
-export const analytics = async (req, res) => {
+const analytics = async (req, res) => {
   const { urlId } = req.params;
+  if (!urlId) {
+    return;
+  }
   const objId = new mongoose.Types.ObjectId(urlId);
 
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
   const botCount = await Click.countDocuments({ urlId: objId, isBot: true });
 
   const [
@@ -41,7 +45,7 @@ export const analytics = async (req, res) => {
       { $match: { urlId: objId } },
       {
         $group: {
-          _id: '$hour', // or: { $hour: '$createdAt' } if you remove "hour" from schema
+          _id: '$hour', // Or use: { $hour: '$createdAt' } if `hour` is not in schema
           count: { $sum: 1 },
         },
       },
@@ -81,9 +85,11 @@ export const analytics = async (req, res) => {
   res.json({
     totalClicks,
     uniqueVisitors: uniqueIps.length,
-    topCountry: topCountry[0]?._id || 'Unknown',
-    topBrowser: topBrowser[0]?._id || 'Unknown',
-    peakHour: peakHour[0]?._id || 'N/A',
+    topCountry:
+      topCountry[0] && topCountry[0]._id ? topCountry[0]._id : 'Unknown',
+    topBrowser:
+      topBrowser[0] && topBrowser[0]._id ? topBrowser[0]._id : 'Unknown',
+    peakHour: peakHour[0] && peakHour[0]._id ? peakHour[0]._id : 'N/A',
     clickGrowth: growth,
     deviceBreakdown,
     botTraffic: botCount,
@@ -92,4 +98,7 @@ export const analytics = async (req, res) => {
       count: r.count,
     })),
   });
+};
+module.exports = {
+  analytics,
 };

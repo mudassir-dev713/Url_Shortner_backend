@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const clickSchema = new mongoose.Schema({
   urlId: { type: mongoose.Schema.Types.ObjectId, ref: 'Url', required: true },
@@ -11,5 +11,7 @@ const clickSchema = new mongoose.Schema({
   hour: Number,
   createdAt: { type: Date, default: Date.now },
 });
+
 const Click = mongoose.model('Click', clickSchema);
-export default Click;
+
+module.exports = Click;

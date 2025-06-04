@@ -1,7 +1,7 @@
-import urlSchemaModel from '../Models/shortUrl.model.js';
-import { catchAsync } from '../utils/errorHandler.js';
+const urlSchemaModel = require('../Models/shortUrl.model.js');
+const { catchAsync } = require('../utils/errorHandler.js');
 
-export const getUrl = catchAsync(async (req, res, next) => {
+const getUrl = catchAsync(async (req, res, next) => {
   try {
     const userId = req.user._id;
 
@@ -12,3 +12,7 @@ export const getUrl = catchAsync(async (req, res, next) => {
     next(err);
   }
 });
+
+module.exports = {
+  getUrl,
+};

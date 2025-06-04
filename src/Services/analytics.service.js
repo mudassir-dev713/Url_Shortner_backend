@@ -1,25 +1,32 @@
-import geoip from 'geoip-lite';
+const geoip = require('geoip-lite');
 
-export function extractIp(req) {
+function extractIp(req) {
   const forwarded = req.headers['x-forwarded-for'];
   return forwarded ? forwarded.split(',')[0] : req.socket.remoteAddress;
 }
 
-export async function getGeoInfo(ip) {
+async function getGeoInfo(ip) {
   if (!ip || ip.startsWith('::1')) return { country: 'Local', city: 'Local' };
   const geo = geoip.lookup(ip);
   return {
-    country: geo?.country || 'Unknown',
-    city: geo?.city || 'Unknown',
+    country: (geo && geo.country) || 'Unknown',
+    city: (geo && geo.city) || 'Unknown',
   };
 }
 
-export function getBrowserAndDevice(req) {
-  const browser = req.useragent?.browser || 'Unknown';
-  const deviceType = req.useragent?.isMobile
+function getBrowserAndDevice(req) {
+  const ua = req.useragent || {};
+  const browser = ua.browser || 'Unknown';
+  const deviceType = ua.isMobile
     ? 'Mobile'
-    : req.useragent?.isTablet
+    : ua.isTablet
     ? 'Tablet'
     : 'Desktop';
   return { browser, deviceType };
 }
+
+module.exports = {
+  extractIp,
+  getGeoInfo,
+  getBrowserAndDevice,
+};

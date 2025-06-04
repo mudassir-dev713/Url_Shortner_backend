@@ -1,4 +1,4 @@
-export function sanitizeQuery(req, res, next) {
+function sanitizeQuery(req, res, next) {
   for (const key in req.query) {
     if (Object.hasOwnProperty.call(req.query, key)) {
       const sanitizedKey = key.replace(/\$/g, '_').replace(/\./g, '_');
@@ -9,4 +9,8 @@ export function sanitizeQuery(req, res, next) {
     }
   }
   next();
-}
+}module.exports = {
+  
+  sanitizeQuery,
+
+};

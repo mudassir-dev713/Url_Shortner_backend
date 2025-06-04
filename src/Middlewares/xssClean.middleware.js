@@ -1,7 +1,6 @@
-import xss from 'xss-clean';
+const xss = require('xss-clean');
 
 function customXssClean(req, res, next) {
-  // Sanitize body
   if (req.body) {
     for (const key in req.body) {
       if (typeof req.body[key] === 'string') {
@@ -9,7 +8,7 @@ function customXssClean(req, res, next) {
       }
     }
   }
-  // Sanitize params
+
   if (req.params) {
     for (const key in req.params) {
       if (typeof req.params[key] === 'string') {
@@ -17,9 +16,10 @@ function customXssClean(req, res, next) {
       }
     }
   }
-  // Do NOT sanitize req.query here to avoid the error
+
+  // Do NOT sanitize req.query here to avoid issues
 
   next();
 }
 
-export default customXssClean;
+module.exports = customXssClean;

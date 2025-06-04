@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
-const urlSchema = mongoose.Schema(
+const urlSchema = new mongoose.Schema(
   {
     full_url: {
       type: String,
@@ -20,8 +20,15 @@ const urlSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
+    anonId: {
+      type: String,
+
+      default: null,
+    },
   },
   { timestamps: true }
 );
-const urlSchemaModel = mongoose.model('urlSchema', urlSchema);
-export default urlSchemaModel;
+
+const Url = mongoose.model('Url', urlSchema);
+
+module.exports = Url;

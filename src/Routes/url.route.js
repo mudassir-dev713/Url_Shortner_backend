@@ -1,18 +1,21 @@
-import { Router } from 'express';
-import {
+const express = require('express');
+const {
   createCustomUrl,
   createShortUrl,
   deleteUrl,
-} from '../Controllers/url.controller.js';
-import { authMiddleware } from '../Middlewares/auth.middleware.js';
-import { optionalAuth } from '../Middlewares/optionalAuth.middleware.js';
-import {
+  getUrlByAnonId,
+} = require('../Controllers/url.controller.js');
+const { authMiddleware } = require('../Middlewares/auth.middleware.js');
+const { optionalAuth } = require('../Middlewares/optionalAuth.middleware.js');
+const {
   validateCustomUrl,
   validateURL,
-} from '../Middlewares/validate.middleware.js';
-import { createUrlLimiter } from '../Middlewares/rateLimiter.middleware.js';
+} = require('../Middlewares/validate.middleware.js');
+const {
+  createUrlLimiter,
+} = require('../Middlewares/rateLimiter.middleware.js');
 
-const router = Router();
+const router = express.Router();
 
 router.post(
   '/create',
@@ -28,6 +31,8 @@ router.post(
   authMiddleware,
   createCustomUrl
 );
-router.delete('/delete/:id', authMiddleware, deleteUrl);
+router.get('/url/:anonId', getUrlByAnonId);
 
-export default router;
+router.delete('/delete/:id', deleteUrl);
+
+module.exports = router;

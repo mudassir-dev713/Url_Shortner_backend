@@ -1,19 +1,19 @@
-import { Router } from 'express';
-import {
+const express = require('express');
+const {
   loginUser,
   refreshAccessToken,
   registerUser,
   getUser,
   logoutUser,
-} from '../Controllers/auth.controller.js';
-import { authMiddleware } from '../Middlewares/auth.middleware.js';
-import {
+} = require('../Controllers/auth.controller.js');
+const { authMiddleware } = require('../Middlewares/auth.middleware.js');
+const {
   validateLogin,
   validateSignup,
-} from '../Middlewares/validate.middleware.js';
-import { authLimiter } from '../Middlewares/rateLimiter.middleware.js';
+} = require('../Middlewares/validate.middleware.js');
+const { authLimiter } = require('../Middlewares/rateLimiter.middleware.js');
 
-const router = Router();
+const router = express.Router();
 
 router.post('/register', authLimiter, validateSignup, registerUser);
 router.post('/login', authLimiter, validateLogin, loginUser);
@@ -21,4 +21,4 @@ router.post('/logout', logoutUser);
 router.get('/me', authMiddleware, getUser);
 router.get('/refresh', refreshAccessToken);
 
-export default router;
+module.exports = router;

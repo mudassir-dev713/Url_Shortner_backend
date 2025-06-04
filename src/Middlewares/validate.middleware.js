@@ -1,6 +1,6 @@
-import validator from 'validator';
+const validator = require('validator');
 
-export const validateSignup = (req, res, next) => {
+const validateSignup = (req, res, next) => {
   const { email, password } = req.body;
   const errors = {};
 
@@ -19,7 +19,7 @@ export const validateSignup = (req, res, next) => {
   next();
 };
 
-export const validateLogin = (req, res, next) => {
+const validateLogin = (req, res, next) => {
   const { email, password } = req.body;
   const errors = {};
 
@@ -38,7 +38,7 @@ export const validateLogin = (req, res, next) => {
   next();
 };
 
-export const validateURL = (req, res, next) => {
+const validateURL = (req, res, next) => {
   const { url } = req.body;
 
   if (!url || !validator.isURL(url, { require_protocol: true })) {
@@ -50,14 +50,15 @@ export const validateURL = (req, res, next) => {
 
   next();
 };
-export const validateCustomUrl = (req, res, next) => {
+
+const validateCustomUrl = (req, res, next) => {
   const { url, slug } = req.body;
 
   if (!url || !validator.isURL(url, { require_protocol: true })) {
     return res.status(400).json({ error: 'A valid original URL is required' });
   }
 
-  if (!slug || !/^[a-zA-Z0-9-_]{3,20}$/.test(slug)) {
+  if (!slug || !/^[a-zA-Z0-9-_]{1,20}$/.test(slug)) {
     return res.status(400).json({
       error:
         'Custom alias must be 3–20 characters (letters, numbers, hyphen, underscore)',
@@ -65,4 +66,12 @@ export const validateCustomUrl = (req, res, next) => {
   }
 
   next();
+};
+
+module.exports = {
+
+  validateSignup,
+  validateLogin,
+  validateURL,
+  validateCustomUrl,
 };

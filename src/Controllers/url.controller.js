@@ -1,40 +1,56 @@
-import {
+const {
   createShortUrlWithoutUser,
   createShortUrlWithUser,
-} from '../Services/createShortUrl.js';
-import urlSchemaModel from '../Models/shortUrl.model.js';
-import { AppError, catchAsync } from '../utils/errorHandler.js';
-import Click from '../Models/click.model.js';
+} = require('../Services/createShortUrl.js');
+const urlSchemaModel = require('../Models/shortUrl.model.js');
+const { AppError, catchAsync } = require('../utils/errorHandler.js');
+const Click = require('../Models/click.model.js');
+const Url = require('../Models/shortUrl.model.js');
+const isSafeUrl = require('../utils/checkUrl.js');
 
 // Short Url
+const createShortUrl = catchAsync(async (req, res, next) => {
+  let { url, anonId } = req.body;
+  const safe = await isSafeUrl(url);
 
-export const createShortUrl = catchAsync(async (req, res, next) => {
-  let { url } = req.body;
-  let shorturl;
   if (!url) return next(new AppError('URL is required', 400));
 
   if (!/^https?:\/\//i.test(url)) {
     url = 'https://' + url;
   }
-  const userid = req.user?._id;
+  if (!safe)
+    return next(
+      new AppError('Malicious URL detected by Google Safe Browsing.', 400)
+    );
+
+  let shorturl;
+
+  const userid = req.user ? req.user._id : null;
 
   if (userid) {
     shorturl = await createShortUrlWithUser(url, userid);
   } else {
-    shorturl = await createShortUrlWithoutUser(url);
+    shorturl = await createShortUrlWithoutUser(url, anonId);
   }
 
   res.status(200).json({
     message: 'Short URL created successfully',
-    short_url: process.env.APP_URL + shorturl.short_url,
+    short_url: shorturl.short_url,
     full_url: url,
   });
 });
-//Custom  Short Url
 
-export const createCustomUrl = catchAsync(async (req, res, next) => {
+// Custom Short Url
+const createCustomUrl = catchAsync(async (req, res, next) => {
   let { url, slug } = req.body;
+  const safe = await isSafeUrl(url);
+
+  if (!safe)
+    return next(
+      new AppError('Malicious URL detected by Google Safe Browsing.', 400)
+    );
   const userid = req.user._id;
+
   if (!url) return next(new AppError('URL is required', 400));
   if (!slug) return next(new AppError('Custom URL is required', 400));
 
@@ -46,19 +62,43 @@ export const createCustomUrl = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     message: 'Short URL created successfully',
-    short_url: process.env.APP_URL + shorturl.short_url,
+    short_url: shorturl.short_url,
     full_url: url,
   });
 });
 
-// delete url
-export const deleteUrl = catchAsync(async (req, res, next) => {
+// Delete URL
+const deleteUrl = catchAsync(async (req, res, next) => {
   let { id } = req.params;
 
-  const url = await urlSchemaModel.findOneAndDelete({ _id: id });
-  const clicks = await Click.deleteMany({ urlId: id });
+  await urlSchemaModel.findOneAndDelete({ _id: id });
+  await Click.deleteMany({ urlId: id });
 
   res.status(200).json({
     message: 'Short URL deleted successfully',
   });
 });
+getUrlByAnonId = async (req, res) => {
+  const { anonId } = req.params;
+
+  if (!anonId) {
+    return res.status(400).json({ error: 'Missing anonymous ID' });
+  }
+
+  try {
+    const urls = await Url.find({ anonId: anonId }).sort({
+      createdAt: -1,
+    });
+
+    res.json(urls);
+  } catch (err) {
+    console.error('Fetch QR error:', err);
+    res.status(500).json({ error: 'Failed to fetch QR codes' });
+  }
+};
+module.exports = {
+  createShortUrl,
+  createCustomUrl,
+  deleteUrl,
+  getUrlByAnonId,
+};

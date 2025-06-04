@@ -1,14 +1,11 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const connectdb = () => {
-  mongoose
-    .connect(process.env.MongoDB_URL)
-    .then(() => {
-      console.log('Mongo Db is connected');
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  return mongoose.connect('mongodb://localhost:27017/url', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+  });
 };
 
-export default connectdb;
+module.exports = connectdb;

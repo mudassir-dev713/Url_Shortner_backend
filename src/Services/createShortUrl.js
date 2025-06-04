@@ -1,12 +1,13 @@
-import urlSchemaModel from '../Models/shortUrl.model.js';
-import { AppError } from '../utils/errorHandler.js';
-import { generateNanoId, getCustomShortUrl } from '../utils/helper.js';
+const urlSchemaModel = require('../Models/shortUrl.model');
+const { AppError } = require('../utils/errorHandler');
+const { generateNanoId, getCustomShortUrl } = require('../utils/helper');
 
-export const createShortUrlWithoutUser = async (url) => {
+async function createShortUrlWithoutUser(url, anonId) {
   try {
     const urlShort = new urlSchemaModel({
       full_url: url,
       short_url: await generateNanoId(8),
+      anonId: anonId,
     });
 
     await urlShort.save();
@@ -14,9 +15,9 @@ export const createShortUrlWithoutUser = async (url) => {
   } catch (err) {
     throw new AppError('Failed to create short URL', 500);
   }
-};
+}
 
-export const createShortUrlWithUser = async (url, user, slug = null) => {
+async function createShortUrlWithUser(url, user, slug = null) {
   try {
     const shorturl = slug || (await generateNanoId(8));
 
@@ -36,13 +37,15 @@ export const createShortUrlWithUser = async (url, user, slug = null) => {
     await urlShort.save();
     return urlShort;
   } catch (err) {
-    // ✅ Keep original AppErrors
     if (err instanceof AppError) {
       throw err;
     }
-
-    // 🐛 Log and wrap unknown errors
     console.error('Unexpected error in createShortUrlWithUser:', err);
     throw new AppError('Failed to create short URL for user', 500);
   }
+}
+
+module.exports = {
+  createShortUrlWithoutUser,
+  createShortUrlWithUser,
 };

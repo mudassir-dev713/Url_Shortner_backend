@@ -1,9 +1,9 @@
-import { Router } from 'express';
-import { authMiddleware } from '../Middlewares/auth.middleware.js';
-import { analytics } from '../Controllers/analytics.controller.js';
+const express = require('express');
+const { authMiddleware } = require('../Middlewares/auth.middleware.js');
+const { analytics } = require('../Controllers/analytics.controller.js');
 
-const router = Router();
+const router = express.Router();
 
 router.get('/summary/:urlId', authMiddleware, analytics);
 
-export default router;
+module.exports = router;

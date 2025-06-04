@@ -1,13 +1,18 @@
-export const AccessCookieOptions = {
-  httpOnly: true, // Prevents JS access to cookie
-  secure: process.env.NODE_ENV === 'production', // HTTPS only in production
-  sameSite: 'lax', // Helps prevent CSRF
+const AccessCookieOptions = {
+  httpOnly: true,
+  secure: true,
+  sameSite: 'none',
   maxAge: 15 * 60 * 1000,
 };
 
-export const RefreshCookieOptions = {
-  httpOnly: true, // Prevents JS access to cookie
-  secure: process.env.NODE_ENV === 'production', // HTTPS only in production
-  sameSite: 'lax', // Helps prevent CSRF
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+const RefreshCookieOptions = {
+  httpOnly: true,
+  secure: true,
+  sameSite: 'none',
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+};
+
+module.exports = {
+  AccessCookieOptions,
+  RefreshCookieOptions,
 };

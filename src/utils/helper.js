@@ -1,38 +1,56 @@
-import jwt from 'jsonwebtoken';
-import { nanoid } from 'nanoid';
-import { UAParser } from 'ua-parser-js';
+// utils/helper.js
+const jwt = require('jsonwebtoken');
+const { nanoid } = require('nanoid');
+const UAParser = require('ua-parser-js');
+const urlSchemaModel = require('../Models/shortUrl.model');
 
-import urlSchemaModel from '../Models/shortUrl.model.js';
-
-export const generateNanoId = (length) => {
+const generateNanoId = (length) => {
   return nanoid(length);
 };
-export const getCustomShortUrl = async (url) => {
+
+const getCustomShortUrl = async (url) => {
   return await urlSchemaModel.findOne({ short_url: url });
 };
-export const generateAccessToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+
+const generateAccessToken = (userId) => {
+  
+  return  jwt.sign({ id: userId }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 };
 
-export const generateRefreshToken = (userId) => {
+const generateRefreshToken = (userId) => {
+  
+  
   return jwt.sign({ id: userId }, process.env.JWT_REFRESH_SECRET, {
     expiresIn: process.env.JWT_REFRESH_EXPIRES_IN,
   });
 };
 
-export const verifyAccessToken = (token) => {
+const verifyAccessToken = (token) => {
   return jwt.verify(token, process.env.JWT_SECRET);
 };
 
-export const verifyRefreshToken = (token) => {
+const verifyRefreshToken = (token) => {
+  
   return jwt.verify(token, process.env.JWT_REFRESH_SECRET);
 };
-export const UAParserfn = (userAgent) => {
-  const parsed = new UAParser(userAgent);
+
+const UAParserfn = (userAgent) => {
+  const parser = new UAParser(userAgent);
   return {
-    browser: parsed.browser.name,
-    deviceType: parsed.device.type || 'Desktop',
+    browser: parser.getBrowser().name,
+    deviceType: parser.getDevice().type || 'Desktop',
   };
+};
+
+
+module.exports = {
+  generateNanoId,
+  getCustomShortUrl,
+  generateAccessToken,
+  generateRefreshToken,
+  verifyAccessToken,
+  verifyRefreshToken,
+  UAParserfn,
 };

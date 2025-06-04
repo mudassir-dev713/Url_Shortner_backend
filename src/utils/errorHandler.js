@@ -1,4 +1,6 @@
-export class AppError extends Error {
+// utils/errorHandler.js
+
+class AppError extends Error {
   constructor(message, statusCode) {
     super(message);
     this.statusCode = statusCode || 500;
@@ -9,7 +11,7 @@ export class AppError extends Error {
   }
 }
 
-export const errorMiddleware = (err, req, res, next) => {
+const errorMiddleware = (err, req, res, next) => {
   console.error('Error 💥:', err);
 
   const statusCode = err.statusCode || 500;
@@ -21,8 +23,14 @@ export const errorMiddleware = (err, req, res, next) => {
   });
 };
 
-export const catchAsync = (fn) => {
+const catchAsync = (fn) => {
   return (req, res, next) => {
-    fn(req, res, next).catch(next);
+    Promise.resolve(fn(req, res, next)).catch(next);
   };
+};
+
+module.exports = {
+  AppError,
+  errorMiddleware,
+  catchAsync,
 };

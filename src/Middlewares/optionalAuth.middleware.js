@@ -1,10 +1,15 @@
-// middlewares/optionalAuth.js
-import User from '../Models/user.model.js';
+const User = require('../Models/user.model.js');
+const { verifyAccessToken } = require('../utils/helper.js');
 
-import { verifyAccessToken } from '../utils/helper.js';
-export const optionalAuth = async (req, res, next) => {
+const optionalAuth = async (req, res, next) => {
   try {
-    const token = req.cookies.accessToken;
+   let token;
+
+    // Get token from Authorization header: "Bearer <token>"
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.split(' ')[1];
+    }
 
     if (!token) return next(); // No token, continue as guest
 
@@ -19,4 +24,8 @@ export const optionalAuth = async (req, res, next) => {
     // Invalid token or other issues - proceed without user
   }
   next();
+};
+
+module.exports = {
+  optionalAuth,
 };
